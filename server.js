@@ -29,6 +29,18 @@ server.get('/movie', function handleGetMovies (req, res) {
   const { genre = '', country = '', avg_vote = '' } = req.query;
 
   //2. validate the parameter values, never trust the client
+  
+  function getCountries( movies ) {
+    const countries = [];
+    
+    for( let i = 0; i < movies.length; i++ ) {
+        if( !countries.includes(movies[i].country) ) {
+            countries.push( movies[i].country );
+        }
+    }
+    
+    return countries;
+}
 
   function validateString (input) {
     if (typeof input !== 'string') {
@@ -40,10 +52,10 @@ server.get('/movie', function handleGetMovies (req, res) {
 
   //VALIDATE GENRES
   validateString(genre); //checks if genre is a string
-
+  const validCountries = getCountries( movies ); 
   const validGenres = ['Animation', 'Drama', 'Comedy', 'Romantic', 'Drama', 'Crime', 'Horror', 'Documentary', 'Action', 'Thriller', 'Adventure', 'Fantasy', 'Musical', 'Biography', 'History', 'War', 'Grotesque', 'Western', 'Spy'];
   const lowercaseValidGenres = validGenres.map(genreName => genreName.toLowerCase());
-  if (!lowercaseValidGenres.includes(genre.toLowerCase)) {
+  if (!lowercaseValidGenres.includes(genre.toLowerCase())) {
     return res
       .status(400)
       .json({ error: 'Genre must be one of the following: Animation, Drama, Comedy, Romantic, Drama, Crime, Horror, Documentary, Action, Thriller, Adventure, Fantasy, Musical, Biography, History, War, Grotesque, Western, Spy' });
@@ -67,6 +79,9 @@ server.get('/movie', function handleGetMovies (req, res) {
   let results = movies;
 
   if (genre) {
+    if (!validGenres.includes(genre)) {
+        return res.status(400).json({error: `Genres should be one of ${JSON.stringify(validGenres)}`})
+    }
     results = movies.filter(movie =>
       movie
         .genre.toLowerCase()
@@ -75,6 +90,9 @@ server.get('/movie', function handleGetMovies (req, res) {
   }
 
   if (country) {
+    if (!validCountries.includes(country)) {
+        return res.status(400).json({error: `Country should be on of {these}`})
+    }
     results = movies.filter(movie =>
       movie
         .country.toLowerCase()
@@ -83,6 +101,9 @@ server.get('/movie', function handleGetMovies (req, res) {
   }
 
   if (avgVoteNum) {
+      if(avgVoteNum === NaN || avgVoteNum < 1 || avgVoteNum > 10){
+          return res.status(400).json({error: `Vote must be between 1 and 10`})
+      }
     results = movies.filter(movie =>
       movie.avg_vote >= avgVoteNum
     );
