@@ -100,7 +100,7 @@ server.get('/movie', function handleGetMovies (req, res) {
   let results = movies;
 
   if (genre) {
-    results = movies.filter(movie =>
+    results = results.filter(movie =>
       movie
         .genre.toLowerCase()
         .includes(genre.toLowerCase())
@@ -108,7 +108,7 @@ server.get('/movie', function handleGetMovies (req, res) {
   }
 
   if (country) {
-    results = movies.filter(movie =>
+    results = results.filter(movie =>
       movie
         .country.toLowerCase()
         .includes(country.toLowerCase())
@@ -116,7 +116,7 @@ server.get('/movie', function handleGetMovies (req, res) {
   }
 
   if (avg_vote) {
-    results = movies.filter(movie =>
+    results = results.filter(movie =>
       movie.avg_vote >= avg_vote
     );
   }
